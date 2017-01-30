@@ -1,9 +1,9 @@
 FROM node:argon
 
-WORKDIR usr/mircoserv/ph-todo-api
+WORKDIR usr/mircoserv/ph-todo-worker
 ADD ./build .
 ADD yarn.lock .
 
 RUN npm i -g nodemon yarn ; yarn install
 
-WORKDIR usr/microserv/ph-todo-api/build
+WORKDIR usr/microserv/ph-todo-worker/build
