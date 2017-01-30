@@ -6,14 +6,11 @@ module.exports = (args, done)->
   if !todo
     err_opts =
       role: 'util'
-      cmd: 'handleErr'
-      type: 'missing_args'
+      cmd: 'missing_args'
       service: 'todo'
-      name: 'addTodo'
-      given:[
-        {name: 'todo'
-        value: todo}
-      ]
+      name: 'add_todo'
+      given:
+        todo: todo
     act err_opts
     .then _handle_error done
   else
@@ -23,6 +20,6 @@ module.exports = (args, done)->
       insert: todo
       model: 'Todo'
     act add_opts
+    .catch _handle_error done
     .then (todo)->
       done null, data: todo
-    .catch _handle_error done
