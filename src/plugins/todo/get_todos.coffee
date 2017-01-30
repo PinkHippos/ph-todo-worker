@@ -15,14 +15,18 @@ module.exports = (args, done)->
     act err_opts
     .then _handle_error done
   else
-    add_opts =
-      role: 'db'
-      cmd: 'read'
-      query:
+    if todo_id
+      query =
         primary_key: todo_id
+    else if todo_id
+      query =
         filters: [
           {author: user_id}
         ]
+    add_opts =
+      role: 'db'
+      cmd: 'read'
+      query: query
       insert: todo
       model: 'Todo'
     act add_opts
