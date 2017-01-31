@@ -1,4 +1,3 @@
-console.log 'HERE'
 seneca = require "#{__dirname}/seneca/instance"
 act = require "#{__dirname}/seneca/act"
 version = process.env.PH_WORKER_V or 'X.X.X'
