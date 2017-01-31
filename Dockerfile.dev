@@ -1,10 +1,10 @@
-FROM node:argon
+FROM pinkhippos/base-development
 
 WORKDIR /usr/ph-todo-worker
 ADD ./build ./build
 ADD ./package.json .
 ADD yarn.lock .
 
-RUN npm i -g nodemon yarn ; yarn install
+RUN yarn install
 
 WORKDIR /usr/ph-todo-worker/build
