@@ -1,5 +1,5 @@
 # Util Plugin
-act = require '../seneca_config/act'
+# role:'util',cmd:*
 
 module.exports = (options)->
   patterns =
@@ -32,3 +32,4 @@ module.exports = (options)->
   @add patterns.general, require "#{__dirname}/general_error"
   @add patterns.missing_args, require "#{__dirname}/missing_args"
   @add patterns.log, require "#{__dirname}/general_log"
+  'util'

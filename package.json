@@ -4,12 +4,13 @@
   "description": "Worker container for ph-todo-example. Holds Util, User, and Todo pllugins.",
   "main": "index.js",
   "author": "chippawah <charles.cantrell@me.com>",
-  "license": "Apache License 2.0",
+  "license": "Apache-2.0",
   "dependencies": {
     "q": "^1.4.1",
     "seneca": "^3.2.2",
     "seneca-amqp-transport": "^2.1.0",
     "seneca-legacy-logger": "^0.1.0",
     "tcp-ping": "^0.1.1"
-  }
+  },
+  "repository": "https://github.com/PinkHippos/ph-todo-worker.git"
 }
