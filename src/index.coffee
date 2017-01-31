@@ -25,7 +25,7 @@ listener = seneca
       args =
         role: 'util'
         cmd: 'log'
-        service: 'system'
+        service: 'worker'
         type: 'general'
         message: "v#{version} Todo, Util, User"
       act args

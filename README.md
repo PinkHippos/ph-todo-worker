@@ -1,2 +1,2 @@
 # Pink Hippos Worker
-#### v0.1.0
+#### v0.1.1
