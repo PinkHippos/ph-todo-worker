@@ -1,5 +1,5 @@
 act = require "#{__dirname}/../../seneca/act"
-_handle_error = require "#{__dirname}/../helpers/handle_error"
+_handle_error = require "#{__dirname}/../helpers/_handle_error"
 
 module.exports = (args, done)->
   {todo} = args
