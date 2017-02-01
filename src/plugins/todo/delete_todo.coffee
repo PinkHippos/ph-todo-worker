@@ -16,11 +16,11 @@ module.exports = (args, done)->
   else
     add_opts =
       role: 'db'
-      cmd: 'create'
+      cmd: 'destroy'
       query:
         primary_key: id
       model: 'Todo'
     act add_opts
-    .catch _handle_error done
     .then (todo)->
       done null, data: todo
+    .catch _handle_error done

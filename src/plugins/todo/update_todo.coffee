@@ -2,8 +2,8 @@ act = require "#{__dirname}/../../seneca/act"
 _handle_error = require "#{__dirname}/../helpers/_handle_error"
 
 module.exports = (args, done)->
-  {id, updates} = args
-  if !id or !updates
+  {id, changes} = args
+  if !id or !changes
     err_opts =
       role: 'util'
       cmd: 'missing_args'
@@ -11,7 +11,7 @@ module.exports = (args, done)->
       name: 'update_todo'
       given:
         id: id
-        updates: updates
+        changes: changes
     act err_opts
     .then _handle_error done
   else
@@ -20,7 +20,7 @@ module.exports = (args, done)->
       cmd: 'update'
       query:
         primary_key: id
-      changes: updates
+      changes: changes
       model: 'Todo'
     act add_opts
     .catch _handle_error done

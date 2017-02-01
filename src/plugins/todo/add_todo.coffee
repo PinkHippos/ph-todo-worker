@@ -2,24 +2,25 @@ act = require "#{__dirname}/../../seneca/act"
 _handle_error = require "#{__dirname}/../helpers/_handle_error"
 
 module.exports = (args, done)->
-  {todo} = args
-  if !todo
+  {new_todo} = args
+  if !new_todo
     err_opts =
       role: 'util'
-      cmd: 'missing_args'
+      cmd: 'handle_err'
+      type: 'missing_args'
       service: 'todo'
       name: 'add_todo'
       given:
-        todo: todo
+        new_todo: new_todo
     act err_opts
     .then _handle_error done
   else
     add_opts =
       role: 'db'
       cmd: 'create'
-      insert: todo
+      insert: new_todo
       model: 'Todo'
     act add_opts
-    .catch _handle_error done
     .then (todo)->
       done null, data: todo
+    .catch _handle_error done
