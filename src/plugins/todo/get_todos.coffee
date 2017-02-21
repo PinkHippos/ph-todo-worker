@@ -2,7 +2,7 @@ act = require "#{__dirname}/../../seneca/act"
 _handle_error = require "#{__dirname}/../helpers/_handle_error"
 
 module.exports = (args, done)->
-  {todo_id, user_id} = args
+  {todo_id, user_id, status} = args
   if todo_id
     query =
       primary_key: todo_id
@@ -10,6 +10,11 @@ module.exports = (args, done)->
     query =
       filters: [
         {author: user_id}
+      ]
+  else if status
+    query =
+      filters: [
+        {status: status}
       ]
   else
     query = 'all'
