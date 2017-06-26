@@ -2,9 +2,9 @@ seneca = require "#{__dirname}/seneca/instance"
 act = require "#{__dirname}/seneca/act"
 version = process.env.PH_WORKER_V or 'X.X.X'
 listener = seneca
-  .use './plugins/todo'
-  .use './plugins/util'
-  # .use './user'
+  .use '/plugins/todo'
+  .use '/plugins/util'
+  # .use '/plugins/user'
   .ready (err)->
     if err
       args =
@@ -28,4 +28,4 @@ listener = seneca
         service: 'worker'
         type: 'general'
         message: "v#{version} Todo, Util, User"
-      act args
+      @act args
