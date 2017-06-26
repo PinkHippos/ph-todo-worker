@@ -4,7 +4,7 @@ Logger.preload = ()->
   options = @options()
   logger = new Logstash options['logstash-logger']
   return extend: logger: (context, payload)->
-    console.log 'PAYLOAD', payload
+    # console.log 'PAYLOAD', payload
     formatted_log =
       message:
         pattern: payload.pattern
