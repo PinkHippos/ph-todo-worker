@@ -12,5 +12,8 @@
     "seneca-amqp-transport": "^2.1.0",
     "tcp-ping": "^0.1.1"
   },
-  "repository": "https://github.com/PinkHippos/ph-todo-worker.git"
+  "repository": "https://github.com/PinkHippos/ph-todo-worker.git",
+  "devDependencies": {
+    "chai": "^4.0.2"
+  }
 }
