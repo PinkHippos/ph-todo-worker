@@ -2,6 +2,10 @@
   "name": "ph-todo-worker",
   "version": "0.1.0",
   "description": "Worker container for ph-todo-example. Holds Util, User, and Todo pllugins.",
+  "scripts": {
+    "start": "node build/index.js",
+    "test": "mocha --compilers coffee:coffee-script/register test/**/*.spec.coffee"
+  },
   "main": "index.js",
   "author": "chippawah <charles.cantrell@me.com>",
   "license": "Apache-2.0",
