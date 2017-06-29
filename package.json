@@ -16,7 +16,7 @@
     "seneca-amqp-transport": "^2.1.0",
     "tcp-ping": "^0.1.1"
   },
-  "engine": {
+  "engines": {
     "node:": ">=8.0.0"
   },
   "repository": "https://github.com/PinkHippos/ph-todo-worker.git",
