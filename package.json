@@ -22,6 +22,7 @@
   "repository": "https://github.com/PinkHippos/ph-todo-worker.git",
   "devDependencies": {
     "chai": "^4.0.2",
+    "coffee-script": "^1.12.6",
     "mocha": "^3.4.2"
   }
 }
