@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node build/index.js",
     "build": "coffee --output $PWD/build/ --compile $PWD/src/",
-    "test": "mocha --compilers coffee:coffee-script/register test/**/*.spec.coffee"
+    "test": "mocha --compilers coffee:coffeescript/register test/**/*.spec.coffee"
   },
   "main": "index.js",
   "author": "chippawah <charles.cantrell@me.com>",
