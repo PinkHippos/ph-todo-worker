@@ -6,7 +6,7 @@ module.exports = (args, done)->
     err_opts =
       role: 'util'
       cmd: 'missing_args'
-      given: args
+      given: @util.clean args
     @act err_opts, (err, response)->
       if err
         done err
