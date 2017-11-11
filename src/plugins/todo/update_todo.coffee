@@ -9,9 +9,7 @@ module.exports = (args, done)->
       cmd: 'missing_args'
       service: 'todo'
       name: 'update_todo'
-      given:
-        id: id
-        changes: changes
+      given: @util.clean args
     act err_opts
     .then _handle_error done
   else

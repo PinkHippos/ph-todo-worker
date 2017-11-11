@@ -2,34 +2,29 @@
 # role:'util',cmd:*
 
 module.exports = (options)->
-  patterns =
-    missing_args:
-      cmd: 'handle_err'
-      type: 'missing_args'
-      # name: <calling fn's name>
-      # given: [
-      #   {
-      #     name: <var name>
-      #     value: <given value>
-      #   }
-      # ]
-    general:
-      cmd: 'handle_err'
-      type: 'general'
-      # message: string
-      # service: string
-      # [err: object]
-      # [status: number or string]
-    log:
-      cmd: 'log'
-      type: 'general'
-      # message: string
-      # service: string
+  plugin = 'util'
+  patterns = [
+      'missing_args'
+        # name: <calling fn's name>
+        # given: [
+        #   {
+        #     name: <var name>
+        #     value: <given value>
+        #   }
+        # ]
+      'handle_err'
+        # message: string
+        # service: string
+        # [err: object]
+        # [status: number or string]
+      'log'
+        # message: string
+        # service: string
+    ]
 
-  for pattern, val of patterns
-    patterns[pattern].role = 'util'
+  for cmd in patterns
+    pattern_string = "role:#{plugin},cmd:#{cmd}"
+    @add pattern_string, require "#{__dirname}/#{cmd}"
 
-  @add patterns.general, require "#{__dirname}/general_error"
-  @add patterns.missing_args, require "#{__dirname}/missing_args"
-  @add patterns.log, require "#{__dirname}/general_log"
-  'util'
+  # return the name for logging in seneca
+  plugin
