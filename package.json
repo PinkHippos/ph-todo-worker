@@ -4,7 +4,8 @@
   "description": "Worker container for ph-todo-example. Holds Util, User, and Todo pllugins.",
   "scripts": {
     "start": "node build/index.js",
-    "test": "mocha --compilers coffee:coffee-script/register test/**/*.spec.coffee"
+    "build": "coffee --output $PWD/build/ --compile $PWD/src/",
+    "test": "mocha --compilers coffee:coffeescript/register test/**/*.spec.coffee"
   },
   "main": "index.js",
   "author": "chippawah <charles.cantrell@me.com>",
@@ -22,7 +23,7 @@
   "repository": "https://github.com/PinkHippos/ph-todo-worker.git",
   "devDependencies": {
     "chai": "^4.0.2",
-    "coffee-script": "^1.12.6",
+    "coffeescript": "^2.0.2",
     "mocha": "^3.4.2"
   }
 }
