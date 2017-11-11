@@ -7,12 +7,11 @@ module.exports = (args, done)->
   -- Function: #{name}
   """
   builtMessage = base
-  for arg in given
-    {name, value} = arg
+  for arg, value of given
     builtMessage = """#{builtMessage}\n
     - Argument Set -
-    Argument Name --> #{name}
-    Given Value --> #{JSON.stringify value}
+    Argument Name --> #{arg}
+    Given Value --> #{value}
     -----------------"""
   message = _wrap_message 'Error', builtMessage, service
   console.log message
