@@ -6,6 +6,6 @@ ADD src ./src
 ADD package.json ./package.json
 ADD yarn.lock .
 
-RUN npm i -g coffeescript yarn; \
+RUN npm i yarn; \
     yarn install; \
     yarn build
