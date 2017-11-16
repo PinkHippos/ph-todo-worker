@@ -1,5 +1,7 @@
 _wrap_message = require "#{__dirname}/_wrap_message"
 _wrap_and_log = (name, given, service)->
+  if !name then name = given.cmd
+  if !service then service = given.role
   base = """
   Missing Argument Error
   -- Service: #{service}
@@ -17,7 +19,7 @@ _wrap_and_log = (name, given, service)->
   message
 module.exports = (args, done)->
   {name, given, service} = args
-  if !name or !given or !service
+  if !given
     given = {name, given, service}
     name = 'missing_args'
     service = 'util'

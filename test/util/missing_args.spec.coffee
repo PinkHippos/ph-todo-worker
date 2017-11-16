@@ -7,8 +7,6 @@ plugin_in_test = require "#{__dirname}/../../src/plugins/util"
 _action_opts =
   role: 'util'
   cmd: 'missing_args'
-  service: 'test_service'
-  name: 'test_service_action'
   given:
     cmd: 'test_service_action'
     role: 'test_service'
@@ -34,8 +32,8 @@ describe '|--- role:UTIL cmd:MISSING_ARGS ---|', ->
     it 'registers the pattern role:util,cmd:missing_args', ->
       pattern_exists = bootstrapped_instance.has 'role:util,cmd:missing_args'
       expect(pattern_exists).to.equal true
-  describe 'handling action args without given, name, or service', ->
-    bad_action_opts = Object.assign {}, _action_opts, name: null
+  describe 'handling action args without given key', ->
+    bad_action_opts = Object.assign {}, _action_opts, given: null
     action_response = null
     before 'start fresh instance, send bad action, and save response', (done)->
       _fresh_instance()
