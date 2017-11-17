@@ -39,11 +39,12 @@ _get_cmd_and_role = (intent)->
   _action_arr = strongest_value.split ':'
   role = _action_arr[0]
   cmd = _action_arr[1]
-  {cmd, role}
+  base_opts = false
+  if cmd and role then base_opts = {cmd, role}
+  base_opts
 
-_build_action_opts = (parsed_wit_response)->
+_get_formatted_action = (formatted_opts, parsed_wit_response)->
   primary_intent = parsed_wit_response.intent.strongest_value
-  formatted_opts = _get_cmd_and_role parsed_wit_response.intent
   switch primary_intent
     when 'todo:add_todo'
       {reminder} = parsed_wit_response
@@ -75,5 +76,9 @@ module.exports = (args, done)->
         min_confidence = min_confidence_settings[key]
       # Set the parsed data on the correlating key on the parsed_data object
       parsed_response[key] = _parse_raw_data raw_data, min_confidence
-    parsed_response.action_opts = _build_action_opts parsed_response
+      # Only try to build action_opts if theres a parsed intent and cmd/role
+      if parsed_response.intent
+        action_opts = _get_cmd_and_role parsed_response.intent
+        if action_opts
+          parsed_response.action_opts = _get_formatted_action action_opts, parsed_response
     done null, data: parsed_response
