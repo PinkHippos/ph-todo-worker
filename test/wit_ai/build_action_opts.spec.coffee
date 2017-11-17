@@ -5,6 +5,16 @@ plugin_in_test = require "#{__dirname}/../../src/plugins/wit_ai/"
 
 _outside_action_args = {}
 
+_default_options_test =
+  parsed_wit_response:
+    intent:
+      strongest_value: 'foo:bar'
+      strongest_confidence: .3
+      values: ['foo:bar']
+  expected:
+    role: 'foo'
+    cmd: 'bar'
+
 _add_todo_test =
   parsed_wit_response:
     reminder:
@@ -42,6 +52,7 @@ _count_todo_test =
     cmd: 'count'
 
 _test_sets = [
+  _default_options_test
   _add_todo_test
   _get_weather_test
   _count_todo_test
@@ -51,7 +62,7 @@ _outside_action_args = {}
 _action_opts =
   role: 'wit_ai'
   cmd: 'build_action_opts'
-  parsed_wit_response: _add_todo_test.parsed_wit_response
+  parsed_wit_response: _default_options_test.parsed_wit_response
 
 _fresh_instance = ()->
   fresh_instance = seneca log: 'test'
