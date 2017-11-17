@@ -3,7 +3,7 @@ module.exports = (options)->
   commands = [
     'message'
     'parse_response'
-    'build_action_opts'
+    'message_and_act'
   ]
   for cmd in commands
     pattern_string = "role:#{plugin},cmd:#{cmd}"

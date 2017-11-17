@@ -9,48 +9,45 @@ _default_options_test =
   message: 'default test message'
 
 _with_overall_confidence =
-  message: 'with some confidence message'
+  message: 'overall confidence message'
   min_confidence_settings:
     overall: .75
 
 _with_specific_confidence =
-  message: 'I have specific confidence settings'
+  message: 'specific confidence message'
   min_confidence_settings:
     intent: .6
 
-_count_todo_test =
-  parsed_wit_response:
-    intent:
-      strongest_value: 'todo:count'
-      strongest_confidence: .3
-      values: ['todo:count']
-  expected:
-    role: 'todo'
-    cmd: 'count'
 
 _test_sets = [
   _default_options_test
-  _add_todo_test
-  _get_weather_test
-  _count_todo_test
+  _with_overall_confidence
+  _with_specific_confidence
 ]
 _outside_action_args = {}
 
+_mock_plugin = (options)->
+  @add 'role:util,cmd:missing_args', (msg, reply)->
+    msg.given = @util.clean msg.given
+    _outside_action_args['util-missing_args'] = @util.clean msg
+    reply null, data:{}
+  @add 'role:wit_ai,cmd:message', (args, done)->
+    _outside_action_args['wit_ai-message'] = @util.clean args
+  @add 'role:wit_ai,cmd:parse_response', (args, done)->
+    _outside_action_args['wit_ai-parse_response'] = @util.clean args
+
 _action_opts =
   role: 'wit_ai'
-  cmd: 'build_action_opts'
-  parsed_wit_response: _default_options_test.parsed_wit_response
+  cmd: 'message_and_act'
+  message: _default_options_test.message
 
 _fresh_instance = ()->
   fresh_instance = seneca log: 'test'
-    .add 'role:util,cmd:missing_args', (msg, reply)->
-      msg.given = @util.clean msg.given
-      _outside_action_args['util-missing_args'] = @util.clean msg
-      reply null, data:{}
+    .use _mock_plugin
     .use plugin_in_test
   fresh_instance
 
-describe '|--- role: WIT_AI cmd: BUILD_ACTION_OPTS ---|', ->
+describe '|--- role: WIT_AI cmd: MESSAGE_AND_ACT ---|', ->
   describe 'bootstrapping', ->
     bootstrapped_instance = null
     before 'create instance and save when ready', (done)->
@@ -59,13 +56,14 @@ describe '|--- role: WIT_AI cmd: BUILD_ACTION_OPTS ---|', ->
         .ready ->
           bootstrapped_instance = test_instance
           done()
-    it 'registers the pattern role:wit_ai,cmd:build_action_opts', ->
-      pattern_exists = bootstrapped_instance.has 'role:wit_ai,cmd:build_action_opts'
+    it 'registers the pattern role:wit_ai,cmd:message_and_act', ->
+      pattern_exists = bootstrapped_instance.has 'role:wit_ai,cmd:message_and_act'
       expect(pattern_exists).to.equal true
-  describe 'handling action args without parsed_wit_response', ->
-    bad_action_opts = Object.assign {}, _action_opts, parsed_wit_response: null
+  describe 'handling action args without message', ->
+    bad_action_opts = Object.assign {}, _action_opts, message: null
     action_response = null
     before 'start fresh instance, send bad action, and save response', (done)->
+      _outside_action_args = {}
       _fresh_instance()
       .test done
       .ready ->
@@ -80,30 +78,17 @@ describe '|--- role: WIT_AI cmd: BUILD_ACTION_OPTS ---|', ->
       handler_opts = _outside_action_args['util-missing_args']
       expect(handler_opts.given).to.deep.equal bad_action_opts
 
-  describe 'handling correct action args', ->
-    _test_sets.forEach (test_set)->
-      {parsed_wit_response, expected} = test_set
-      action_response = null
-      before 'send action and save response', (done)->
-        _fresh_instance()
-        .test done
-        .ready ->
-          @act 'role:wit_ai,cmd:build_action_opts', {
-              parsed_wit_response
-          }, (err, response)->
-            action_response = response
-            done()
-      it 'returns a data object', ->
-        expect(action_response).to.include.keys 'data'
-        expect(action_response.data).to.be.an 'object'
-      it 'formats the data object with cmd and role', ->
-        expect(action_response.data).to.include.keys [
-          'cmd'
-          'role'
-        ]
-      it "sets role to #{expected.role}", ->
-        expect(action_response.data.role).to.equal expected.role
-      it "sets cmd to #{expected.cmd}", ->
-        expect(action_response.data.cmd).to.equal expected.cmd
-      it 'formats the rest of the keys as expected', ->
-        expect(action_response.data).to.eql expected
+  # describe 'handling correct action args', ->
+  #   _test_sets.forEach (test_set)->
+  #     {message, min_confidence_settings, expected} = test_set
+  #     action_response = null
+  #     before 'send action and save response', (done)->
+  #       _fresh_instance()
+  #       .test done
+  #       .ready ->
+  #         @act 'role:wit_ai,cmd:message_and_act', {
+  #             message
+  #             min_confidence_settings
+  #         }, (err, response)->
+  #           action_response = response
+  #           done()

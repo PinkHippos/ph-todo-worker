@@ -27,6 +27,30 @@ _parse_raw_data = (raw_data, min_confidence = .5)->
   parsed_data = {values, strongest_value, strongest_confidence}
   parsed_data
 
+###
+  _get_cmd_and_role
+  1 - Takes a parsed intent object with key strongest_value
+  2 - Splits value on colon ':'
+  3 - Assumes role is first and cmd is second in array
+  4 - Returns object with cmd and role keys
+###
+_get_cmd_and_role = (intent)->
+  {strongest_value} = intent
+  _action_arr = strongest_value.split ':'
+  role = _action_arr[0]
+  cmd = _action_arr[1]
+  {cmd, role}
+
+_build_action_opts = (parsed_wit_response)->
+  primary_intent = parsed_wit_response.intent.strongest_value
+  formatted_opts = _get_cmd_and_role parsed_wit_response.intent
+  switch primary_intent
+    when 'todo:add_todo'
+      {reminder} = parsed_wit_response
+      formatted_opts.new_todo =
+        text: reminder.strongest_value
+  formatted_opts
+
 module.exports = (args, done)->
   {raw_wit_response, min_confidence_settings} = args
   if !raw_wit_response
@@ -51,4 +75,5 @@ module.exports = (args, done)->
         min_confidence = min_confidence_settings[key]
       # Set the parsed data on the correlating key on the parsed_data object
       parsed_response[key] = _parse_raw_data raw_data, min_confidence
+    parsed_response.action_opts = _build_action_opts parsed_response
     done null, data: parsed_response

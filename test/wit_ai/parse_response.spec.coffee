@@ -34,6 +34,11 @@ _default_test_set =
         }
       ]
   expected:
+    action_opts:
+      role: 'todo'
+      cmd: 'add_todo'
+      new_todo:
+        text: 'an important todo'
     reminder:
       strongest_value: 'an important todo'
       strongest_confidence: .65
@@ -80,6 +85,11 @@ _lower_than_default_confidence_test_set =
   min_confidence_settings:
     overall: .25
   expected:
+    action_opts:
+      role: 'todo'
+      cmd: 'add_todo'
+      new_todo:
+        text: 'an important todo'
     reminder:
       strongest_value: 'an important todo'
       strongest_confidence: .3
@@ -126,6 +136,11 @@ _specific_confidence_setting_test_set =
   min_confidence_settings:
     intent: .25
   expected:
+    action_opts:
+      role: 'todo'
+      cmd: 'add_todo'
+      new_todo:
+        text: 'an important todo'
     reminder:
       strongest_value: 'an important todo'
       strongest_confidence: .65
@@ -207,15 +222,36 @@ describe '|--- role: WIT_AI cmd: PARSE_RESPONSE ---|', ->
           }, (err, response)->
             action_response = response
             done()
-      it 'returns the parsed wit response', ->
-        expect(action_response).to.include.keys 'data'
-        expect(action_response.data).to.be.an 'object'
-      it 'includes each of the entity keys passed on raw_wit_response', ->
-        keys_to_parse = Object.keys raw_wit_response.entities
-        expect(action_response.data).to.include.keys keys_to_parse
-      describe 'parsing each key correctly', ->
-        for key of expected
+      describe 'returning a properly formatted object',->
+        it 'returns the parsed wit response', ->
+          expect(action_response).to.include.keys 'data'
+          expect(action_response.data).to.be.an 'object'
+        it 'includes each of the entity keys passed on raw_wit_response', ->
+          keys_to_parse = Object.keys raw_wit_response.entities
+          expect(action_response.data).to.include.keys keys_to_parse
+      describe 'parsing each entity correctly', ->
+        for key of raw_wit_response.entities
           it "parses #{key} correctly", ->
             actual_value = action_response.data[key]
             expected_value = expected[key]
             expect(actual_value).to.eql expected_value
+      describe 'formatting a set of action options', ->
+        it 'includes an action_opts key that is an object', ->
+          expect(action_response.data).includes.keys 'action_opts'
+          expect(action_response.data.action_opts).to.be.an 'object'
+        it 'includes the correct cmd & role as string values on action_opts', ->
+          expect(action_response.data.action_opts).to.include.keys [
+            'cmd'
+            'role'
+          ]
+          expect(action_response.data.action_opts.cmd).to.be.a 'string'
+          expect(action_response.data.action_opts.role).to.be.a 'string'
+        it "sets role to #{expected.action_opts.role}", ->
+          expected_value = expected.action_opts.role
+          actual_value = action_response.data.action_opts.role
+        it "sets cmd to #{expected.action_opts.cmd}", ->
+          expected_value = expected.action_opts.cmd
+          actual_value = action_response.data.action_opts.cmd
+          expect(actual_value).to.equal expected_value
+        it 'provides correct options if required for the action', ->
+          expect(action_response.data.action_opts).to.eql expected.action_opts
