@@ -12,7 +12,7 @@ module.exports = (args, done)->
     wit_client
       .message text, context
       .then (wit_response)->
-        console.log 'WIT RESPONSE', wit_response
+        # console.log 'WIT RESPONSE', wit_response
         done null, data: wit_response
       .catch (err)->
         done null, err:
