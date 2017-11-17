@@ -37,11 +37,18 @@ module.exports = (args, done)->
   else
     keys = Object.keys raw_wit_response.entities
     parsed_response = {}
+    # Check for overall confidence, option set confidence, or default to .51
+    base_confidence = process.env.WIT_AI_MIN_CONFIDENCE or .51
+    if min_confidence_settings and min_confidence_settings.overall
+      base_confidence = min_confidence_settings.overall
     for key in keys
+      # Get fresh copy of base_confidence each time
+      min_confidence = Number base_confidence
+      # Grab the raw data
       raw_data = raw_wit_response.entities[key]
-      if min_confidence_settings
+      # Check if theres a specific min confidence set for the key
+      if min_confidence_settings and min_confidence_settings.hasOwnProperty key
         min_confidence = min_confidence_settings[key]
-      else
-        min_confidence = undefined
-      parsed_response["parsed_#{key}"] = _parse_raw_data raw_data, min_confidence
+      # Set the parsed data on the correlating key on the parsed_data object
+      parsed_response[key] = _parse_raw_data raw_data, min_confidence
     done null, data: parsed_response
