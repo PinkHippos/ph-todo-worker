@@ -1,6 +1,6 @@
 {expect} = require 'chai'
 seneca = require 'seneca'
-env = require('dotenv').config({path: "#{__dirname}/../../../secrets.env"})
+env = require('dotenv').config({path: "#{__dirname}/../../secrets.env"})
 plugin_in_test = require "#{__dirname}/../../src/plugins/wit_ai"
 
 _outside_action_args = {}
