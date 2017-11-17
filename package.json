@@ -5,10 +5,10 @@
   "scripts": {
     "start": "node build/index.js",
     "build": "coffee --output $PWD/build/ --compile $PWD/src/",
-    "test": "mocha --compilers coffee:coffeescript/register test/**/*.spec.coffee",
-    "test:wit_ai": "mocha --compilers coffee:coffeescript/register test/wit_ai/*.spec.coffee",
-    "test:util": "mocha --compilers coffee:coffeescript/register test/util/*.spec.coffee",
-    "test:todo": "mocha --compilers coffee:coffeescript/register test/todo/*.spec.coffee"
+    "test": "mocha --require coffeescript/register test/**/*.spec.coffee",
+    "test:wit_ai": "mocha --require coffeescript/register test/wit_ai/*.spec.coffee",
+    "test:util": "mocha --require coffeescript/register test/util/*.spec.coffee",
+    "test:todo": "mocha --require coffeescript/register test/todo/*.spec.coffee"
   },
   "main": "index.js",
   "author": "chippawah <charles.cantrell@me.com>",
