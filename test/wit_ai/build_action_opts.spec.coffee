@@ -92,19 +92,30 @@ describe '|--- role: WIT_AI cmd: BUILD_ACTION_OPTS ---|', ->
       handler_opts = _outside_action_args['util-missing_args']
       expect(handler_opts.given).to.deep.equal bad_action_opts
 
-  # describe 'handling correct action args', ->
-  #   _test_sets.forEach (test_set)->
-  #     {parsed_wit_response, expected} = test_set
-  #     action_response = null
-  #     before 'send action and save response', (done)->
-  #       _fresh_instance()
-  #       .test done
-  #       .ready ->
-  #         @act 'role:wit_ai,cmd:build_action_opts', {
-  #             parsed_wit_response
-  #         }, (err, response)->
-  #           action_response = response
-  #           done()
-  #     it 'returns the parsed wit response', ->
-  #       expect(action_response).to.include.keys 'data'
-  #       expect(action_response.data).to.be.an 'object'
+  describe 'handling correct action args', ->
+    _test_sets.forEach (test_set)->
+      {parsed_wit_response, expected} = test_set
+      action_response = null
+      before 'send action and save response', (done)->
+        _fresh_instance()
+        .test done
+        .ready ->
+          @act 'role:wit_ai,cmd:build_action_opts', {
+              parsed_wit_response
+          }, (err, response)->
+            action_response = response
+            done()
+      it 'returns a data object', ->
+        expect(action_response).to.include.keys 'data'
+        expect(action_response.data).to.be.an 'object'
+      it 'formats the data object with cmd and role', ->
+        expect(action_response.data).to.include.keys [
+          'cmd'
+          'role'
+        ]
+      it "sets role to #{expected.role}", ->
+        expect(action_response.data.role).to.equal expected.role
+      it "sets cmd to #{expected.cmd}", ->
+        expect(action_response.data.cmd).to.equal expected.cmd
+      it 'formats the rest of the keys as expected', ->
+        expect(action_response.data).to.eql expected
