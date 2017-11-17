@@ -135,17 +135,17 @@ _specific_confidence_setting_test_set =
       strongest_confidence: .3
       values: ['todo:add_todo']
     datetime:
-      strongest_value: '2017-11-17T13:00:00.000-08:00'
+      strongest_value: '2017-11-10T13:00:00.000-08:00'
       strongest_confidence: .95
       values: [
-        '2017-11-17T13:00:00.000-08:00'
-        '2017-11-16T15:00:00.000-08:00'
+        '2017-11-10T13:00:00.000-08:00'
+        '2017-11-20T15:00:00.000-08:00'
       ]
 
 test_sets = [
   _default_test_set
-  # _lower_than_default_confidence_test_set
-  # _specific_confidence_setting_test_set
+  _lower_than_default_confidence_test_set
+  _specific_confidence_setting_test_set
 ]
 _outside_action_args = {}
 
