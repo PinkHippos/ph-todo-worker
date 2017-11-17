@@ -5,36 +5,70 @@ plugin_in_test = require "#{__dirname}/../../src/plugins/wit_ai/"
 
 _outside_action_args = {}
 
+
 _default_options_test =
   message: 'default test message'
 
-_with_overall_confidence =
-  message: 'overall confidence message'
+_with_some_intent =
+message: 'with some intent'
+
+_with_some_confidence =
+  message: 'something with confidence'
   min_confidence_settings:
     overall: .75
 
-_with_specific_confidence =
-  message: 'specific confidence message'
-  min_confidence_settings:
-    intent: .6
 
-
-_test_sets = [
+_test_sets = {
   _default_options_test
-  _with_overall_confidence
-  _with_specific_confidence
-]
+  _with_some_intent
+  _with_some_confidence
+}
 _outside_action_args = {}
+# set responses for easy changing later
+_mock_plugin_responses =
+  missing_args: {}
+  message:
+    raw_wit_response:
+      msg_id: 'SOME_WIT_AI_ID_1'
+      _text: 'Add an important todo for tomorrow at 1pm and 3pm'
+      entities:
+        foo:[
+          {
+            value: 'bar'
+            confidence: .65
+          }
+        ]
+        intent: [
+          {
+            value: 'bat'
+            confidence: .95
+          }
+          {
+            value: 'zap'
+            confidence: .80
+          }
+        ]
+  parse_response:
+    foo:
+      strongest_value: 'bar'
+      strongest_confidence: .65
+      values: ['bar']
+    intent:
+      strongest_value: 'bat'
+      strongest_confidence: .95
+      values: ['bat', 'zap']
 
 _mock_plugin = (options)->
   @add 'role:util,cmd:missing_args', (msg, reply)->
     msg.given = @util.clean msg.given
-    _outside_action_args['util-missing_args'] = @util.clean msg
-    reply null, data:{}
+    _outside_action_args['missing_args'] = @util.clean msg
+    reply null, data: _mock_plugin_responses['missing_args']
   @add 'role:wit_ai,cmd:message', (args, done)->
-    _outside_action_args['wit_ai-message'] = @util.clean args
+    _outside_action_args['message'] = @util.clean args
+    done null, data: _mock_plugin_responses['message']
   @add 'role:wit_ai,cmd:parse_response', (args, done)->
-    _outside_action_args['wit_ai-parse_response'] = @util.clean args
+    _outside_action_args['parse_response'] = @util.clean args
+    done null, data:  _mock_plugin_responses['parse_response']
 
 _action_opts =
   role: 'wit_ai'
@@ -73,22 +107,45 @@ describe '|--- role: WIT_AI cmd: MESSAGE_AND_ACT ---|', ->
     it 'sends back an error', ->
       expect(action_response).to.include.keys 'err'
     it 'calls the error handler', ->
-      expect(_outside_action_args).to.include.keys 'util-missing_args'
+      expect(_outside_action_args).to.include.keys 'missing_args'
     it "passes its arguments to the err handler as the 'given' key", ->
-      handler_opts = _outside_action_args['util-missing_args']
+      handler_opts = _outside_action_args['missing_args']
       expect(handler_opts.given).to.deep.equal bad_action_opts
 
-  # describe 'handling correct action args', ->
-  #   _test_sets.forEach (test_set)->
-  #     {message, min_confidence_settings, expected} = test_set
-  #     action_response = null
-  #     before 'send action and save response', (done)->
-  #       _fresh_instance()
-  #       .test done
-  #       .ready ->
-  #         @act 'role:wit_ai,cmd:message_and_act', {
-  #             message
-  #             min_confidence_settings
-  #         }, (err, response)->
-  #           action_response = response
-  #           done()
+  describe 'handling correct action args', ->
+    # Expect mock plugin actions to be called & the return to be used correctly
+    Object.keys(_test_sets).forEach (test_name)->
+      describe test_name, ->
+        {message, min_confidence_settings} = _test_sets[test_name]
+        action_response = null
+        before 'send action and save response', (done)->
+          _fresh_instance()
+          .test done
+          .ready ->
+            @act 'role:wit_ai,cmd:message_and_act', {
+                message
+                min_confidence_settings
+            }, (err, response)->
+              action_response = response
+              done()
+        describe 'when calling message action', ->
+          it 'calls the message action', ->
+            expect _outside_action_args
+              .to.include.keys 'message'
+          it 'passes a message', ->
+            expect _outside_action_args['message']
+              .to.include.keys [
+                'message'
+              ]
+          it 'passes the correct message', ->
+            expect _outside_action_args['message'].message
+              .to.equal message
+        if min_confidence_settings
+          it 'passes a min_confidence_settings', ->
+            expect _outside_action_args['message']
+              .to.include.keys [
+                'min_confidence_settings'
+              ]
+          it 'passes the correct min_confidence_settings', ->
+            expect _outside_action_args['message'].min_confidence_settings
+              .to.equal min_confidence_settings
