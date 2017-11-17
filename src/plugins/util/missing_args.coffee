@@ -14,7 +14,7 @@ _wrap_and_log = (name, given, service)->
     Argument Name --> #{arg}
     Given Value --> #{value}
     -----------------"""
-  message = _wrap_message 'Error', builtMessage, service
+  message = _wrap_message.apply this, ['Error', builtMessage, service]
   console.log message
   message
 module.exports = (args, done)->
@@ -23,13 +23,13 @@ module.exports = (args, done)->
     given = {name, given, service}
     name = 'missing_args'
     service = 'util'
-    message = _wrap_and_log name, given, service
+    message = _wrap_and_log.apply this, [name, given, service]
     done null, err: {
         status: 400
         message
     }
   else
-    message = _wrap_and_log name, given, service
+    message = _wrap_and_log.apply this, [name, given, service]
     done null, data:
       message: message
       status: 400

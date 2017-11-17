@@ -1,5 +1,3 @@
-_handle_error = require "#{__dirname}/../helpers/_handle_error"
-
 module.exports = (args, done)->
   {new_todo} = args
   if !new_todo
