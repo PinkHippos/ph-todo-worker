@@ -7,13 +7,13 @@ _outside_action_args = {}
 
 
 _default_options_test =
-  message: 'default test message'
+  text: 'default test message'
 
 _with_some_intent =
-message: 'with some intent'
+  text: 'with some intent'
 
 _with_some_confidence =
-  message: 'something with confidence'
+  text: 'something with confidence'
   min_confidence_settings:
     overall: .75
 
@@ -57,6 +57,9 @@ _mock_plugin_responses =
       strongest_value: 'bat'
       strongest_confidence: .95
       values: ['bat', 'zap']
+  test_action:
+    message: 'Hey you called the test action!'
+    status: 200
 
 _mock_plugin = (options)->
   @add 'role:util,cmd:missing_args', (msg, reply)->
@@ -69,16 +72,19 @@ _mock_plugin = (options)->
   @add 'role:wit_ai,cmd:parse_response', (args, done)->
     _outside_action_args['parse_response'] = @util.clean args
     done null, data:  _mock_plugin_responses['parse_response']
+  @add 'role:wit_test,cmd:test_action', (args, done)->
+    _outside_action_args['test_action'] = @util.clean args
+    done null, data: _mock_plugin_responses['test_action']
 
 _action_opts =
   role: 'wit_ai'
   cmd: 'message_and_act'
-  message: _default_options_test.message
+  text: _default_options_test.message
 
 _fresh_instance = ()->
   fresh_instance = seneca log: 'test'
-    .use _mock_plugin
     .use plugin_in_test
+    .use _mock_plugin
   fresh_instance
 
 describe '|--- role: WIT_AI cmd: MESSAGE_AND_ACT ---|', ->
@@ -93,8 +99,8 @@ describe '|--- role: WIT_AI cmd: MESSAGE_AND_ACT ---|', ->
     it 'registers the pattern role:wit_ai,cmd:message_and_act', ->
       pattern_exists = bootstrapped_instance.has 'role:wit_ai,cmd:message_and_act'
       expect(pattern_exists).to.equal true
-  describe 'handling action args without message', ->
-    bad_action_opts = Object.assign {}, _action_opts, message: null
+  describe 'handling action args without text key', ->
+    bad_action_opts = Object.assign {}, _action_opts, text: null
     action_response = null
     before 'start fresh instance, send bad action, and save response', (done)->
       _outside_action_args = {}
@@ -116,14 +122,15 @@ describe '|--- role: WIT_AI cmd: MESSAGE_AND_ACT ---|', ->
     # Expect mock plugin actions to be called & the return to be used correctly
     Object.keys(_test_sets).forEach (test_name)->
       describe test_name, ->
-        {message, min_confidence_settings} = _test_sets[test_name]
+        {text, min_confidence_settings} = _test_sets[test_name]
         action_response = null
         before 'send action and save response', (done)->
+          @timeout 5000
           _fresh_instance()
           .test done
           .ready ->
             @act 'role:wit_ai,cmd:message_and_act', {
-                message
+                text
                 min_confidence_settings
             }, (err, response)->
               action_response = response
@@ -132,20 +139,30 @@ describe '|--- role: WIT_AI cmd: MESSAGE_AND_ACT ---|', ->
           it 'calls the message action', ->
             expect _outside_action_args
               .to.include.keys 'message'
-          it 'passes a message', ->
+          it 'passes a text key', ->
             expect _outside_action_args['message']
               .to.include.keys [
-                'message'
+                'text'
               ]
           it 'passes the correct message', ->
-            expect _outside_action_args['message'].message
-              .to.equal message
-        if min_confidence_settings
-          it 'passes a min_confidence_settings', ->
-            expect _outside_action_args['message']
-              .to.include.keys [
-                'min_confidence_settings'
-              ]
-          it 'passes the correct min_confidence_settings', ->
-            expect _outside_action_args['message'].min_confidence_settings
-              .to.equal min_confidence_settings
+            expect _outside_action_args['message'].text
+              .to.equal text
+        describe 'when calling parse_response', ->
+          it 'calls the parse_response action', ->
+            expect _outside_action_args
+              .to.include.keys 'parse_response'
+          it 'passes a raw_wit_response', ->
+            expect _outside_action_args['parse_response']
+              .to.include.keys 'raw_wit_response'
+          it 'passes the raw data from message action as raw_wit_response', ->
+            expect _outside_action_args['parse_response'].raw_wit_response
+              .to.equal _mock_plugin_responses['message']
+          if min_confidence_settings
+            it 'passes a min_confidence_settings', ->
+              expect _outside_action_args['parse_response']
+                .to.include.keys [
+                  'min_confidence_settings'
+                ]
+            it 'passes the correct min_confidence_settings', ->
+              expect _outside_action_args['parse_response'].min_confidence_settings
+                .to.equal min_confidence_settings
