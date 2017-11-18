@@ -33,7 +33,6 @@ module.exports = (args, done)->
           else
             parsed_wit_response = parse_response.data
             if parsed_wit_response.action_opts
-              console.log 'Action opts for wit message found'
               @act parsed_wit_response.action_opts, (err, wit_action_response)->
                 if err or wit_action_response.err
                   done null, err:

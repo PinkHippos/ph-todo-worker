@@ -30,7 +30,7 @@ _mock_plugin_responses =
   message:
     raw_wit_response:
       msg_id: 'SOME_WIT_AI_ID_1'
-      _text: 'Add an important todo for tomorrow at 1pm and 3pm'
+      # _text: ADDED BASED ON INPUT TEXT
       entities:
         foo:[
           {
@@ -68,10 +68,17 @@ _mock_plugin = (options)->
     reply null, data: _mock_plugin_responses['missing_args']
   @add 'role:wit_ai,cmd:message', (args, done)->
     _outside_action_args['message'] = @util.clean args
-    done null, data: _mock_plugin_responses['message']
+    formatted_response = _mock_plugin_responses['message']
+    formatted_response._text = args.text
+    done null, data: formatted_response
   @add 'role:wit_ai,cmd:parse_response', (args, done)->
     _outside_action_args['parse_response'] = @util.clean args
-    done null, data:  _mock_plugin_responses['parse_response']
+    formatted_response = Object.assign {}, _mock_plugin_responses['parse_response']
+    if args.raw_wit_response._text is _with_some_intent.text
+      formatted_response.action_opts =
+        role: 'wit_test'
+        cmd: 'test_action'
+    done null, data:  formatted_response
   @add 'role:wit_test,cmd:test_action', (args, done)->
     _outside_action_args['test_action'] = @util.clean args
     done null, data: _mock_plugin_responses['test_action']
@@ -125,7 +132,7 @@ describe '|--- role: WIT_AI cmd: MESSAGE_AND_ACT ---|', ->
         {text, min_confidence_settings} = _test_sets[test_name]
         action_response = null
         before 'send action and save response', (done)->
-          @timeout 5000
+          _outside_action_args = {}
           _fresh_instance()
           .test done
           .ready ->
