@@ -42,7 +42,6 @@ module.exports = (args, done)->
                 else
                   done null, data: wit_action_response.data
             else
-              console.log 'No action opts found'
               done null, err:
                 message: 'No action options found for the given message'
                 status: 400
