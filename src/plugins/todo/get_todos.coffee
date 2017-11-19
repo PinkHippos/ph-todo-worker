@@ -20,7 +20,11 @@ module.exports = (args, done)->
     cmd: 'read'
     query: query
     model: 'Todo'
-  act get_opts
-  .then (todos)->
-    done null, data: todos
-  .catch _handle_error done
+  @act get_opts, (err, response)->
+    if err or response.err
+      done null, err:
+        seneca_err: err
+        action_err: response.err
+        message: 'Could not read todos'
+    else
+      done null, data: response.data
