@@ -26,40 +26,44 @@ _test_sets = {
 _outside_action_args = {}
 # set responses for easy changing later
 _mock_plugin_responses =
-  missing_args: {}
+  missing_args:
+    data: {}
   message:
-    raw_wit_response:
-      msg_id: 'SOME_WIT_AI_ID_1'
-      # _text: ADDED BASED ON INPUT TEXT
-      entities:
-        foo:[
-          {
-            value: 'bar'
-            confidence: .65
-          }
-        ]
-        intent: [
-          {
-            value: 'bat'
-            confidence: .95
-          }
-          {
-            value: 'zap'
-            confidence: .80
-          }
-        ]
+    data:
+      raw_wit_response:
+        msg_id: 'SOME_WIT_AI_ID_1'
+        # _text: ADDED BASED ON INPUT TEXT
+        entities:
+          foo:[
+            {
+              value: 'bar'
+              confidence: .65
+            }
+          ]
+          intent: [
+            {
+              value: 'bat'
+              confidence: .95
+            }
+            {
+              value: 'zap'
+              confidence: .80
+            }
+          ]
   parse_response:
-    foo:
-      strongest_value: 'bar'
-      strongest_confidence: .65
-      values: ['bar']
-    intent:
-      strongest_value: 'bat'
-      strongest_confidence: .95
-      values: ['bat', 'zap']
+    data:
+      foo:
+        strongest_value: 'bar'
+        strongest_confidence: .65
+        values: ['bar']
+      intent:
+        strongest_value: 'bat'
+        strongest_confidence: .95
+        values: ['bat', 'zap']
   test_action:
-    message: 'Hey you called the test action!'
-    status: 200
+    data:
+      message: 'Hey you called the test action!'
+      status: 200
 
 _mock_plugin = (options)->
   @add 'role:util,cmd:missing_args', (msg, reply)->
@@ -70,7 +74,7 @@ _mock_plugin = (options)->
     _outside_action_args['message'] = @util.clean args
     formatted_response = _mock_plugin_responses['message']
     formatted_response._text = args.text
-    done null, data: formatted_response
+    done null, formatted_response
   @add 'role:wit_ai,cmd:parse_response', (args, done)->
     _outside_action_args['parse_response'] = @util.clean args
     formatted_response = Object.assign {}, _mock_plugin_responses['parse_response']
@@ -78,10 +82,10 @@ _mock_plugin = (options)->
       formatted_response.action_opts =
         role: 'wit_test'
         cmd: 'test_action'
-    done null, data:  formatted_response
+    done null,  formatted_response
   @add 'role:wit_test,cmd:test_action', (args, done)->
     _outside_action_args['test_action'] = @util.clean args
-    done null, data: _mock_plugin_responses['test_action']
+    done null, _mock_plugin_responses['test_action']
 
 _action_opts =
   role: 'wit_ai'
@@ -173,7 +177,7 @@ describe '|--- role: WIT_AI cmd: MESSAGE_AND_ACT ---|', ->
               .to.include.keys 'raw_wit_response'
           it 'passes the raw data from message action as raw_wit_response', ->
             expect _outside_action_args['parse_response'].raw_wit_response
-              .to.equal _mock_plugin_responses['message']
+              .to.equal _mock_plugin_responses['message'].data
           if min_confidence_settings
             it 'passes a min_confidence_settings', ->
               expect _outside_action_args['parse_response']
@@ -184,19 +188,26 @@ describe '|--- role: WIT_AI cmd: MESSAGE_AND_ACT ---|', ->
               expect _outside_action_args['parse_response'].min_confidence_settings
                 .to.equal min_confidence_settings
           describe 'handling the result of parse_response', ->
-            it 'sets action_called to true when given action_opts', ->
+            it 'returns correct action_called', ->
               called_expectation = expect(action_response.data.action_called)
               if action_response.data.parsed_wit_response.hasOwnProperty 'action_opts'
                 called_expectation.to.equal true
               else
                 called_expectation.to.equal false
-            it 'returns correct wit_action_response when given action_opts', ->
+            it 'returns correct wit_action_response', ->
               wit_action_expectation = expect(action_response.data)
               if action_response.data.parsed_wit_response.hasOwnProperty 'action_opts'
                 wit_action_expectation.to.include.keys [
                   'wit_action_response'
                 ]
+                expect(action_response.data.wit_action_response)
+                  .to.eql _mock_plugin_responses['test_action']
               else
                 wit_action_expectation.to.not.include.keys [
                   'wit_action_response'
                 ]
+            it 'correctly decides when to call outside action', ->
+              if action_response.data.parsed_wit_response.hasOwnProperty 'action_opts'
+                expect(_outside_action_args).to.include.keys ['test_action']
+              else
+                expect(_outside_action_args).to.not.include.keys ['test_action']
