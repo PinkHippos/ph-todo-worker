@@ -7,8 +7,8 @@ module.exports = (args, done)->
       service: 'todo'
       name: 'update_todo'
       given: @util.clean args
-    act err_opts
-    .then _handle_error done
+    @act err_opts, (err, response)->
+      done null, err: response.data
   else
     add_opts =
       role: 'db'
@@ -17,7 +17,10 @@ module.exports = (args, done)->
         primary_key: id
       changes: changes
       model: 'Todo'
-    act add_opts
-    .catch _handle_error done
-    .then (updated_todo)->
-      done null, data: updated_todo
+    @act add_opts, (err, response)->
+      if err or response.err
+        done null, err:
+          seneca_err: err
+          action_err: response.err
+      else
+        done null, data: response.data
