@@ -17,5 +17,5 @@ module.exports = (args, done)->
       service: 'util'
     act errOpts
   else
-    console.log _wrap_message 'LOG', message, service
+    console.log _wrap_message.apply this, ['LOG', message, service]
     done null, data: 'Success'

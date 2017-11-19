@@ -15,6 +15,6 @@ module.exports = (args, done)->
     -- Error Object --
     #{JSON.stringify err}
     """
-  message = _wrap_message 'ERROR', message, service
+  message = _wrap_message.apply this, ['ERROR', message, service]
   console.log message
   done null, data: 'Error logged.'

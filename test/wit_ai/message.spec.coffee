@@ -1,26 +1,25 @@
 {expect} = require 'chai'
 seneca = require 'seneca'
+env = require('dotenv').config({path: "#{__dirname}/../../secrets.env"})
+plugin_in_test = require "#{__dirname}/../../src/plugins/wit_ai"
 
-plugin_in_test = require "#{__dirname}/../../src/plugins/util"
-
+_outside_action_args = {}
 
 _action_opts =
-  role: 'util'
-  cmd: 'missing_args'
-  given:
-    cmd: 'test_service_action'
-    role: 'test_service'
-    foo: 'some_arg'
-    bar: 23
-    baz:
-      bat: 'cat?'
+  role: 'wit_ai'
+  cmd: 'message'
+  text: 'Add a test for tomorrow at 1pm'
 
 _fresh_instance = ()->
   fresh_instance = seneca log: 'test'
+    .add 'role:util,cmd:missing_args', (msg, reply)->
+      msg.given = @util.clean msg.given
+      _outside_action_args['util-missing_args'] = @util.clean msg
+      reply null, data:{}
     .use plugin_in_test
   fresh_instance
 
-describe '|--- role:UTIL cmd:MISSING_ARGS ---|', ->
+describe '|--- role: WIT_AI cmd: MESSAGE ---|', ->
   describe 'bootstrapping', ->
     bootstrapped_instance = null
     before 'create instance and save when ready', (done)->
@@ -29,11 +28,11 @@ describe '|--- role:UTIL cmd:MISSING_ARGS ---|', ->
         .ready ->
           bootstrapped_instance = test_instance
           done()
-    it 'registers the pattern role:util,cmd:missing_args', ->
-      pattern_exists = bootstrapped_instance.has 'role:util,cmd:missing_args'
+    it 'registers the pattern role:wit_ai,cmd:message', ->
+      pattern_exists = bootstrapped_instance.has 'role:wit_ai,cmd:message'
       expect(pattern_exists).to.equal true
-  describe 'handling action args without given key', ->
-    bad_action_opts = Object.assign {}, _action_opts, given: null
+  describe 'handling action args without text', ->
+    bad_action_opts = Object.assign {}, _action_opts, text: null
     action_response = null
     before 'start fresh instance, send bad action, and save response', (done)->
       _fresh_instance()
@@ -44,6 +43,11 @@ describe '|--- role:UTIL cmd:MISSING_ARGS ---|', ->
           done()
     it 'sends back an error', ->
       expect(action_response).to.include.keys 'err'
+    it 'calls the error handler', ->
+      expect(_outside_action_args).to.include.keys 'util-missing_args'
+    it "passes its arguments to the err handler as the 'given' key", ->
+      handler_opts = _outside_action_args['util-missing_args']
+      expect(handler_opts.given).to.deep.equal bad_action_opts
 
   describe 'handling correct action args', ->
     action_response = null
@@ -54,16 +58,5 @@ describe '|--- role:UTIL cmd:MISSING_ARGS ---|', ->
         @act _action_opts, (err, response)->
           action_response = response
           done()
-    describe 'responding to succesful calls', ->
-      it 'sends back an object with a data key', ->
-        expect(action_response).to.include.keys 'data'
-      it 'sends back a formatted error', ->
-        expect(action_response.data).to.include.keys [
-          'message'
-          'status'
-        ]
-      it 'returns a string err.message', ->
-        expect(action_response.data.message).to.be.a 'string'
-      it 'returns a 400 err.status', ->
-        expect(action_response.data.status).to.be.a 'number'
-        expect(action_response.data.status).to.equal 400
+    it 'returns the wit response', ->
+      expect(action_response).to.exist

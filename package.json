@@ -5,13 +5,17 @@
   "scripts": {
     "start": "node build/index.js",
     "build": "coffee --output $PWD/build/ --compile $PWD/src/",
-    "test": "mocha --compilers coffee:coffeescript/register test/**/*.spec.coffee"
+    "test": "mocha --require coffeescript/register test/**/*.spec.coffee",
+    "test:wit_ai": "mocha --require coffeescript/register test/wit_ai/*.spec.coffee",
+    "test:util": "mocha --require coffeescript/register test/util/*.spec.coffee",
+    "test:todo": "mocha --require coffeescript/register test/todo/*.spec.coffee"
   },
   "main": "index.js",
   "author": "chippawah <charles.cantrell@me.com>",
   "license": "Apache-2.0",
   "dependencies": {
     "logstash-client": "^1.1.1",
+    "node-wit": "^4.3.0",
     "q": "^1.4.1",
     "seneca": "^3.2.2",
     "seneca-amqp-transport": "2.1.0",
@@ -24,6 +28,7 @@
   "devDependencies": {
     "chai": "^4.0.2",
     "coffeescript": "^2.0.2",
-    "mocha": "^3.4.2"
+    "dotenv": "^4.0.0",
+    "mocha": "^4.0.1"
   }
 }

@@ -4,7 +4,6 @@ version = process.env.PH_WORKER_V or 'X.X.X'
 listener = seneca
   .use '/plugins/todo'
   .use '/plugins/util'
-  # .use '/plugins/user'
   .ready (err)->
     if err
       args =
@@ -18,7 +17,6 @@ listener = seneca
         type: 'amqp'
         pins: [
           'role:util,cmd:*'
-          # 'role:user,cmd:*'
           'role:todo,cmd:*'
         ]
       listener.listen base
@@ -27,5 +25,5 @@ listener = seneca
         cmd: 'log'
         service: 'worker'
         type: 'general'
-        message: "v#{version} Todo, Util, User"
+        message: "Worker v#{version} started"
       @act args
