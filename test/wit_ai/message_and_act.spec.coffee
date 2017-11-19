@@ -142,6 +142,16 @@ describe '|--- role: WIT_AI cmd: MESSAGE_AND_ACT ---|', ->
             }, (err, response)->
               action_response = response
               done()
+        describe 'when sending response', ->
+          it 'includes a data key', ->
+            expect(action_response).to.include.keys 'data'
+          it 'raw_wit_response, parsed_wit_response, and action_called', ->
+            expect action_response.data
+              .to.include.keys [
+                'raw_wit_response'
+                'parsed_wit_response'
+                'action_called'
+              ]
         describe 'when calling message action', ->
           it 'calls the message action', ->
             expect _outside_action_args
@@ -173,3 +183,20 @@ describe '|--- role: WIT_AI cmd: MESSAGE_AND_ACT ---|', ->
             it 'passes the correct min_confidence_settings', ->
               expect _outside_action_args['parse_response'].min_confidence_settings
                 .to.equal min_confidence_settings
+          describe 'handling the result of parse_response', ->
+            it 'sets action_called to true when given action_opts', ->
+              called_expectation = expect(action_response.data.action_called)
+              if action_response.data.parsed_wit_response.hasOwnProperty 'action_opts'
+                called_expectation.to.equal true
+              else
+                called_expectation.to.equal false
+            it 'returns correct wit_action_response when given action_opts', ->
+              wit_action_expectation = expect(action_response.data)
+              if action_response.data.parsed_wit_response.hasOwnProperty 'action_opts'
+                wit_action_expectation.to.include.keys [
+                  'wit_action_response'
+                ]
+              else
+                wit_action_expectation.to.not.include.keys [
+                  'wit_action_response'
+                ]

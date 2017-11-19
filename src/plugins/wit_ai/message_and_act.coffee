@@ -21,6 +21,7 @@ module.exports = (args, done)->
       else
         parse_action = "role:wit_ai,cmd:parse_response"
         raw_wit_response = message_response.data
+        formatted_final_response = {raw_wit_response}
         @act parse_action, {
           raw_wit_response
           min_confidence_settings
@@ -32,17 +33,12 @@ module.exports = (args, done)->
               message: 'Error while calling ' + parse_action
           else
             parsed_wit_response = parse_response.data
+            formatted_final_response.parsed_wit_response = parsed_wit_response
             if parsed_wit_response.action_opts
               @act parsed_wit_response.action_opts, (err, wit_action_response)->
-                if err or wit_action_response.err
-                  done null, err:
-                    seneca_err: err
-                    action_err: wit_action_response.err
-                    message: 'Error while calling dynamic wit generated action'
-                else
-                  done null, data: wit_action_response.data
+                formatted_final_response.action_called = true
+                formatted_final_response.wit_action_response = wit_action_response
+                done null, data: formatted_final_response
             else
-              done null, err:
-                message: 'No action options found for the given message'
-                status: 400
-                parsed_wit_response: parsed_wit_response
+              formatted_final_response.action_called = false
+              done null, data: formatted_final_response
