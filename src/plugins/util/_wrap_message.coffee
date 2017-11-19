@@ -1,4 +1,3 @@
-act = require "#{__dirname}/../../seneca/act"
 module.exports = (type, message, service)->
   if !service or !message
     errOpts =
@@ -8,7 +7,8 @@ module.exports = (type, message, service)->
       name: '_wrap_message'
       service: 'util'
       given: [{name: 'service', given: service}]
-    act errOpts
+    @act errOpts, (err, response)->
+      console.log response.data.message
     false
   else
     title = "*_*_* #{type} from #{service.toUpperCase()} *_*_*\n"

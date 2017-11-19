@@ -4,10 +4,6 @@ options =
   log:
     level: true
   tag: 'worker'
-  'logstash-logger':
-    host: 'logstash'
-    port: 9600
-    type: 'tcp'
 seneca = seneca options
   .use 'seneca-amqp-transport', {
     amqp:
@@ -15,6 +11,6 @@ seneca = seneca options
   }
   .client {
     type: 'amqp'
+    pin: 'role:*,cmd:*'
   }
-  .use require "#{__dirname}/logger"
 module.exports = seneca

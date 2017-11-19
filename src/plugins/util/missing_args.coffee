@@ -1,5 +1,7 @@
 _wrap_message = require "#{__dirname}/_wrap_message"
 _wrap_and_log = (name, given, service)->
+  if !name then name = given.cmd
+  if !service then service = given.role
   base = """
   Missing Argument Error
   -- Service: #{service}
@@ -12,22 +14,22 @@ _wrap_and_log = (name, given, service)->
     Argument Name --> #{arg}
     Given Value --> #{value}
     -----------------"""
-  message = _wrap_message 'Error', builtMessage, service
+  message = _wrap_message.apply this, ['Error', builtMessage, service]
   console.log message
   message
 module.exports = (args, done)->
   {name, given, service} = args
-  if !name or !given or !service
+  if !given
     given = {name, given, service}
     name = 'missing_args'
     service = 'util'
-    message = _wrap_and_log name, given, service
+    message = _wrap_and_log.apply this, [name, given, service]
     done null, err: {
         status: 400
         message
     }
   else
-    message = _wrap_and_log name, given, service
+    message = _wrap_and_log.apply this, [name, given, service]
     done null, data:
       message: message
       status: 400
