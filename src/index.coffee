@@ -4,6 +4,7 @@ version = process.env.PH_WORKER_V or 'X.X.X'
 listener = seneca
   .use '/plugins/todo'
   .use '/plugins/util'
+  .use '/plugins/wit_ai'
   .ready (err)->
     if err
       args =
@@ -18,6 +19,7 @@ listener = seneca
         pins: [
           'role:util,cmd:*'
           'role:todo,cmd:*'
+          'role:wit_ai,cmd:*'
         ]
       listener.listen base
       args =
