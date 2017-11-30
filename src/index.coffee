@@ -5,6 +5,7 @@ listener = seneca
   .use '/plugins/todo'
   .use '/plugins/util'
   .use '/plugins/wit_ai'
+  .use '/plugins/pusher'
   .ready (err)->
     if err
       args =
@@ -20,6 +21,7 @@ listener = seneca
           'role:util,cmd:*'
           'role:todo,cmd:*'
           'role:wit_ai,cmd:*'
+          'role:pusher,cmd:*'
         ]
       listener.listen base
       args =
