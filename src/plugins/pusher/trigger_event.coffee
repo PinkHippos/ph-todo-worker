@@ -1,28 +1,25 @@
-Pusher = require 'pusher'
+_get_pusher_client = require './_get_pusher_client'
 
 module.exports = (args, done)->
   {channel, event_name, data} = args
   if !channel or !event_name or !data
     err_opts =
       role: 'util'
-      cmd: 'handle_err'
-      type: 'missing_args'
-      given: [
-        {name: 'channel', value: channel}
-        {name: 'event_name', value: event_name}
-        {name: 'data', value: data}
-      ]
+      cmd: 'missing_args'
+      given: @util.clean args
     @act err_opts, (err, response)->
-      done null, data: response.data
+      done null, err: response.data
   else
-    # Build pusher client and trigger event
-    pusher_opts =
-      appId: @options().pusher.PUSHER_APP_ID
-      key: @options().pusher.PUSHER_APP_KEY
-      secret: @options().pusher.PUSHER_APP_SECRET
-      cluster: @options().pusher.PUSHER_APP_CLUSTER
-      encrypted: true
-    pusher = new Pusher pusher_opts
+    # Get pusher client and trigger event
+    pusher_opts = null
+    if @options.pusher
+      pusher_opts =
+        appId: @options().pusher.PUSHER_APP_ID
+        key: @options().pusher.PUSHER_APP_KEY
+        secret: @options().pusher.PUSHER_APP_SECRET
+        cluster: @options().pusher.PUSHER_APP_CLUSTER
+        encrypted: true
+    pusher = _get_pusher_client pusher_opts
     pusher_cb = (pusher_err, request, response)->
       # Log out anything we get back from pusher
       if pusher_err

@@ -5,7 +5,7 @@ module.exports = (options)->
   ]
   for pattern in patterns
    pattern_string = "role:#{plugin},cmd:#{pattern}"
-   file_path = "#{__dirname}/#{pattern}"
+   file_path = "./#{pattern}"
    @add pattern_string, require file_path
   plugin
 
