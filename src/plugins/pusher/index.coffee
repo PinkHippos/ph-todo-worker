@@ -14,7 +14,7 @@ You can subscribe to events using this:
   Pusher.logToConsole = true
 
   pusher = new Pusher 'PUSHER_APP_ID', {
-    cluster: 'us2',
+    cluster: 'PUSHER_APP_CLUSTER',
     encrypted: true
   }
   channel = pusher.subscribe 'CHANNEL_NAME'
