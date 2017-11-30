@@ -16,6 +16,7 @@
   "dependencies": {
     "logstash-client": "^1.1.1",
     "node-wit": "^4.3.0",
+    "pusher": "^1.5.1",
     "q": "^1.4.1",
     "seneca": "^3.2.2",
     "seneca-amqp-transport": "2.1.0",
